@@ -1,7 +1,7 @@
 import os
 from app001 import app
 from werkzeug.utils import secure_filename
-from models import Diagnosis
+from app001.models import Diagnosis
 
 ALLOWED_EXTESIONS = {'png', 'jpg', 'jpeg'}
 
