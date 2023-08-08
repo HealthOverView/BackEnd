@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from app001 import app
-from views import upload
+from app001.views import upload
 
 
 @app.route('/test')
