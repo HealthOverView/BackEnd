@@ -9,3 +9,5 @@ db = {
 DB_URL = f"mysql+mysqlconnector://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{db['database']}?charset=utf8"
 
 UPLOAD_FOLDER = './images'
+
+UPLOAD_EXTENSIONS = ['jpg', 'png', 'jpeg']
