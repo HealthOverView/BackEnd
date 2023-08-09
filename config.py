@@ -6,7 +6,7 @@ db = {
     'database': 'diagnosis'
 }
 
-DB_URL = f"mysql+mysqlconnector://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{db['database']}?charset=utf8"
+SQLALCHEMY_DATABASE_URI = f"mysql://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{db['database']}?charset=utf8"
 
 UPLOAD_FOLDER = './images'
 
