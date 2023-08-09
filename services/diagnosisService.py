@@ -1,5 +1,8 @@
 import json
-from models.diagnosis import Inserttable, db, Gettable
+
+from flask import jsonify
+
+from models.diagnosis import Inserttable, db
 #import request
 from werkzeug.utils import secure_filename
 import os
@@ -15,4 +18,6 @@ def insert_logic():
 
 
 def get_logic():
-    return Gettable.query.all()
+    tasks = Inserttable.query.all()
+    tasks_list = [task.to_dict() for task in tasks]
+    return jsonify(tasks_list)
