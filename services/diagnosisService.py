@@ -63,6 +63,11 @@ def insert_logic():
             return jsonify(file_result)
     except Exception as e:
         os.remove(file_result['description'])
+        return {
+            'message': 'err',
+            'status': 'Internal Server err',
+            'description': str(e)
+        }
 
 
 def get_logic():
