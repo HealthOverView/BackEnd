@@ -19,7 +19,7 @@ class table(db.Model):
     def to_dict(self):
         return {
             'idx': self.idx,
-            'diagnosis_date': self.diagnosis_date,
+            'diagnosis_date': self.formatted_diagnosis_date(),
             'img_name': self.img_name,
             'result': self.result
         }
