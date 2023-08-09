@@ -1,4 +1,5 @@
 import json
+import time
 
 from flask import jsonify, request
 import config
@@ -28,11 +29,12 @@ def file_upload():
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
-            file.save(os.path.join(config.UPLOAD_FOLDER, filename))
+            n_filename = time.time_ns()+"."+filename
+            file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return jsonify({
                 'message': 'success',
                 'status': 'OK',
-                'description': 'file upload success'
+                'description': n_filename
             })
         except Exception as e:
             return jsonify({
@@ -49,9 +51,11 @@ def file_upload():
 
 
 def insert_logic():
-    return file_upload()
-    # os.makedirs(image_path, exists_ok=True)
-    # file.save()
+    file_result = file_upload()
+    if file_result['status']=='OK':
+        pass
+    else:
+        return file_result
 
 
 def get_logic():
