@@ -1,14 +1,14 @@
 import json
 
 from flask import jsonify, request
-from app import app
+import config
 from models.diagnosis import table, db
 from werkzeug.utils import secure_filename
 import os
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in config.UPLOAD_EXTENSIONS
 
 
 def file_upload():
@@ -28,7 +28,7 @@ def file_upload():
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(config.UPLOAD_FOLDER, filename))
             return jsonify({
                 'message': 'success',
                 'status': 'OK',
