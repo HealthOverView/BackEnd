@@ -56,7 +56,7 @@ def insert_logic():
         #모델 판단 부분
         #이후 결과 result에 저장
         result = 0
-        db.session.add(table(diagnosis_date=time.localtime(), img_name=file_result['description'], result=result))
+        db.session.add(table(diagnosis_date=time.localtime().tm_yday, img_name=file_result['description'], result=result))
         db.session.commit()
     else:
         return jsonify(file_result)
