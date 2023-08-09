@@ -29,7 +29,7 @@ def file_upload():
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
-            n_filename = time.time_ns()+"."+filename
+            n_filename = time.time_ns() + "." + filename
             file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return jsonify({
                 'message': 'success',
@@ -52,8 +52,12 @@ def file_upload():
 
 def insert_logic():
     file_result = file_upload()
-    if file_result['status']=='OK':
-        pass
+    if file_result['status'] == 'OK':
+        #모델 판단 부분
+        #이후 결과 result에 저장
+        result = 0
+        db.sesstion.add(table(diagnosis_date=time.localtime(), img_name=file_result['description'], result=result))
+        db.session.commit()
     else:
         return file_result
 
