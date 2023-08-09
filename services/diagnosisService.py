@@ -37,14 +37,16 @@ def file_upload():
                 'description': n_filename
             }
         except Exception as e:
+            if n_filename is not None:
+                os.remove(n_filename)
             return {
-                'message': 'error',
+                'message': 'err',
                 'status': 'Internal Server err',
                 'description': str(e)
             }
     else:
         return {
-            'message': 'error',
+            'message': 'err',
             'status': 'bad request',
             'description': 'Invalid file type'
         }
