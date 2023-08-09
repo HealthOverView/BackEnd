@@ -62,7 +62,7 @@ def insert_logic():
         else:
             return jsonify(file_result)
     except Exception as e:
-        os.remove(file_result['description'])
+        os.remove(os.path.join(config.UPLOAD_FOLDER, file_result['description']))
         return {
             'message': 'err',
             'status': 'Internal Server err',
