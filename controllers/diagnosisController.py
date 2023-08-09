@@ -1,5 +1,5 @@
 import json
-from models.diagnosis import Inserttable, db
+from models.diagnosis import table, db
 from services.diagnosisService import insert_logic, get_logic
 
 
@@ -12,6 +12,7 @@ def index():
 
 def insert():
     insert_logic()
+    return "test 중입니다..."
 
 
 def get():

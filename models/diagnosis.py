@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-class Inserttable(db.Model):
+class table(db.Model):
     __tablename__ = 'diagnosis'
     idx = db.Column(db.Integer, primary_key=True, autoincrement=True)
     diagnosis_date = db.Column(db.DateTime, nullable=False)
