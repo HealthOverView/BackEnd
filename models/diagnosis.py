@@ -10,9 +10,6 @@ class table(db.Model):
     img_name = db.Column(db.String(32), nullable=False)
     result = db.Column(db.Integer, nullable=False)
 
-    def __repr__(self):
-        return '<idx %r>' % self.idx
-
     def formatted_diagnosis_date(self, format='%Y-%m-%d %H:%M:%S'):
         return self.diagnosis_date.strftime(format)
 
