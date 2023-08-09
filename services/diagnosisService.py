@@ -14,40 +14,40 @@ def allowed_file(filename):
 
 def file_upload():
     if 'img' not in request.files:
-        return jsonify({
+        return {
             'message': 'err',
             'status': 'bad request',
             'description': 'no file part'
-        })
+        }
     file = request.files['img']
     if file.filename == '':
-        return jsonify({
+        return {
             'message': 'err',
             'status': 'bad request',
             'description': 'no selected file'
-        })
+        }
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
             n_filename = time.time_ns() + "." + filename
             file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
-            return jsonify({
+            return {
                 'message': 'success',
                 'status': 'OK',
                 'description': n_filename
-            })
+            }
         except Exception as e:
-            return jsonify({
+            return {
                 'message': 'error',
                 'status': 'Internal Server err',
                 'description': str(e)
-            })
+            }
     else:
-        return jsonify({
+        return {
             'message': 'error',
             'status': 'bad request',
             'description': 'Invalid file type'
-        })
+        }
 
 
 def insert_logic():
@@ -59,7 +59,7 @@ def insert_logic():
         db.sesstion.add(table(diagnosis_date=time.localtime(), img_name=file_result['description'], result=result))
         db.session.commit()
     else:
-        return file_result
+        return jsonify(file_result)
 
 
 def get_logic():
