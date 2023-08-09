@@ -11,8 +11,7 @@ def index():
 
 
 def insert():
-    insert_logic()
-    return "test 중입니다..."
+    return insert_logic()
 
 
 def get():
