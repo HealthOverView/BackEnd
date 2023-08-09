@@ -1,7 +1,6 @@
 from flask import Flask
 from models.diagnosis import db
 from routes.blueprint import blueprint
-from flask_migrate import Migrate
 
 
 def create_app():
@@ -12,7 +11,6 @@ def create_app():
 
 
 app = create_app()
-migrate = Migrate(app, db)
 app.register_blueprint(blueprint)
 
 if __name__ == '__main__':
