@@ -37,8 +37,6 @@ def file_upload():
                 'description': n_filename
             }
         except Exception as e:
-            if n_filename is not None:
-                os.remove(n_filename)
             return {
                 'message': 'err',
                 'status': 'Internal Server err',
@@ -53,15 +51,18 @@ def file_upload():
 
 
 def insert_logic():
-    file_result = file_upload()
-    if file_result['status'] == 'OK':
-        #모델 판단 부분
-        #이후 결과 result에 저장
-        result = 0
-        db.session.add(table(diagnosis_date=time, img_name=file_result['description'], result=result))
-        db.session.commit()
-    else:
-        return jsonify(file_result)
+    try:
+        file_result = file_upload()
+        if file_result['status'] == 'OK':
+            #모델 판단 부분
+            #이후 결과 result에 저장
+            result = 0
+            db.session.add(table(diagnosis_date=time, img_name=file_result['description'], result=result))
+            db.session.commit()
+        else:
+            return jsonify(file_result)
+    except Exception as e:
+        os.remove(file_result['description'])
 
 
 def get_logic():
