@@ -13,5 +13,6 @@ def index():
 def insert():
     insert_logic()
 
+
 def get():
-    get_logic()
+    return get_logic()
