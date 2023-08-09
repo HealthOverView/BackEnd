@@ -6,7 +6,7 @@ db = SQLAlchemy()
 class Inserttable(db.Model):
     __tablename__ = 'diagnosis'
     idx = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    diagnosis_date = db.Column(db.Datetime, nullable=False)
+    diagnosis_date = db.Column(db.DateTime, nullable=False)
     img_name = db.Column(db.String(32), nullable=False)
     result = db.Column(db.Integer, nullable=False)
 
@@ -17,7 +17,7 @@ class Inserttable(db.Model):
 class Gettable(db.Model):
     __tablename__ = 'diagnosis'
     idx = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    diagnosis_date = db.Column(db.Datetime, nullable=False)
+    diagnosis_date = db.Column(db.DateTime, nullable=False)
     img_name = db.Column(db.String(32), nullable=False)
     result = db.Column(db.Integer, nullable=False)
 
