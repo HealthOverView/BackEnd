@@ -13,6 +13,9 @@ class table(db.Model):
     def __repr__(self):
         return '<idx %r>' % self.idx
 
+    def formatted_diagnosis_date(self, format='%Y-%m-%d %H:%M:%S'):
+        return self.diagnosis_date.strftime(format)
+
     def to_dict(self):
         return {
             'idx': self.idx,
