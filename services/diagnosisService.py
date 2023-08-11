@@ -59,10 +59,16 @@ def insert_logic():
             result = 0
             db.session.add(table(diagnosis_date=time.strftime('%Y-%m-%d %H:%M:%S'), img_name=file_result['description'], result=result))
             db.session.commit()
+            return jsonify({
+                'message': 'success',
+                'status': 'OK',
+                'description': result
+            })
         else:
             return jsonify(file_result)
     except Exception as e:
-        os.remove(os.path.join(config.UPLOAD_FOLDER, file_result['description']))
+        if file_result['status'] == 'Internal Server err' and os.path.exists(os.path.join(config.UPLOAD_FOLDER, file_result['description'])):
+            os.remove(os.path.join(config.UPLOAD_FOLDER, file_result['description']))
         return {
             'message': 'err',
             'status': 'Internal Server err',
