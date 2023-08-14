@@ -6,7 +6,7 @@ import config
 from models.diagnosis import table, db
 from werkzeug.utils import secure_filename
 import os
-
+from PIL import Image
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in config.UPLOAD_EXTENSIONS
@@ -26,9 +26,11 @@ def file_upload():
             'status': 'bad request',
             'description': 'no selected file'
         }
-    if file and allowed_file(file.filename):
+    image = Image.open(file)
+    resize_image = image.resize(640, 640)
+    if resize_image and allowed_file(resize_image.filename):
         try:
-            filename = secure_filename(file.filename)
+            filename = secure_filename(resize_image.filename)
             n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[1].lower()
             file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return {
