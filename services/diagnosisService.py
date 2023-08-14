@@ -27,7 +27,7 @@ def file_upload():
             'description': 'no selected file'
         }
     image = Image.open(file)
-    resize_image = image.resize(640, 640)
+    resize_image = image.resize((640, 640), Image.BICUBIC)
     if resize_image and allowed_file(resize_image.filename):
         try:
             filename = secure_filename(resize_image.filename)
