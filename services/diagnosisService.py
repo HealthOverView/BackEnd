@@ -67,7 +67,7 @@ def insert_logic():
         else:
             return jsonify(file_result), 400
     except Exception as e:
-        if file_result['status'] == 'Internal Server err' and os.path.exists(os.path.join(config.UPLOAD_FOLDER, file_result['description'])):
+        if os.path.exists(os.path.join(config.UPLOAD_FOLDER, file_result['description'])):
             os.remove(os.path.join(config.UPLOAD_FOLDER, file_result['description']))
         return jsonify({
             'message': 'err',
