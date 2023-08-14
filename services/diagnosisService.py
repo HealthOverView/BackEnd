@@ -28,11 +28,11 @@ def file_upload():
         }
     image = Image.open(file)
     resize_image = image.resize((640, 640), Image.BICUBIC)
-    if resize_image and allowed_file(resize_image.filename):
+    if file and allowed_file(file.filename):
         try:
-            filename = secure_filename(resize_image.filename)
+            filename = secure_filename(file.filename)
             n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[1].lower()
-            file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
+            resize_image.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return {
                 'message': 'success',
                 'status': 'OK',
