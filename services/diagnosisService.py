@@ -9,7 +9,7 @@ import os
 from PIL import Image
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in config.UPLOAD_EXTENSIONS
+    return '.' in filename and filename.rsplit('.', 1)[-1].lower() in config.UPLOAD_EXTENSIONS
 
 
 def file_upload():
