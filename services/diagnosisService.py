@@ -29,7 +29,7 @@ def file_upload():
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
-            n_filename = str(time.time_ns()) + "_" + filename
+            n_filename = str(time.time_ns()) + "." + '.' in filename and filename.rsplit('.', 1)[1].lower()
             file.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return {
                 'message': 'success',
