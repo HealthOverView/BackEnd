@@ -31,7 +31,7 @@ def file_upload():
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
-            n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[1].lower()
+            n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[-1].lower()
             resize_image.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
             return {
                 'message': 'success',
