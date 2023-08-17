@@ -64,7 +64,7 @@ def insert_logic():
             #이후 결과 result에 저장
             res_list = ['infertility period', 'transitional period', 'ovulatory phase', 'foreign substance']
             pred = file_result['pred']
-            db.session.add(table(diagnosis_date=time.strftime('%Y-%m-%d %H:%M:%S'), img_name=file_result['description'], result=res_list.index(pred))
+            db.session.add(table(diagnosis_date=time.strftime('%Y-%m-%d %H:%M:%S'), img_name=file_result['description'], result=res_list.index(pred)))
             db.session.commit()
             return jsonify({
                 'message': 'success',
