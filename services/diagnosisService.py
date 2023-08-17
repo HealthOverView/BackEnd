@@ -7,6 +7,7 @@ from models.diagnosis import table, db
 from werkzeug.utils import secure_filename
 import os
 from PIL import Image
+from API_model import predict
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[-1].lower() in config.UPLOAD_EXTENSIONS
@@ -32,11 +33,14 @@ def file_upload():
         try:
             filename = secure_filename(file.filename)
             n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[-1].lower()
-            resize_image.save(os.path.join(config.UPLOAD_FOLDER, n_filename))
+            file_path = os.path.join(config.UPLOAD_FOLDER, n_filename)
+            resize_image.save(file_path)
+            pred = predict(file_path)
             return {
                 'message': 'success',
                 'status': 'OK',
-                'description': n_filename
+                'description': n_filename,
+                'pred': pred
             }
         except Exception as e:
             return {
@@ -58,13 +62,14 @@ def insert_logic():
         if file_result['status'] == 'OK':
             #모델 판단 부분
             #이후 결과 result에 저장
-            result = 0
-            db.session.add(table(diagnosis_date=time.strftime('%Y-%m-%d %H:%M:%S'), img_name=file_result['description'], result=result))
+            res_list = ['infertility period', 'transitional period', 'ovulatory phase', 'foreign substance']
+            pred = file_result['pred']
+            db.session.add(table(diagnosis_date=time.strftime('%Y-%m-%d %H:%M:%S'), img_name=file_result['description'], result=res_list.index(pred))
             db.session.commit()
             return jsonify({
                 'message': 'success',
                 'status': 'OK',
-                'description': result
+                'description': pred
             }), 200
         else:
             return jsonify(file_result), 400
