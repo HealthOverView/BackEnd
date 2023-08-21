@@ -1,7 +1,8 @@
 import json
 import time
 
-from flask import jsonify, request
+from flask import jsonify, request, send_file
+import base64
 import config
 from model.diagnosis import table, db
 from werkzeug.utils import secure_filename
@@ -71,7 +72,8 @@ def insert_logic():
             return jsonify({
                 'message': 'success',
                 'status': 'OK',
-                'description': pred
+                'description': pred,
+                'file': file_result['description']
             }), 200
         else:
             return jsonify(file_result), 400
@@ -89,3 +91,26 @@ def get_logic():
     tasks = table.query.all()
     tasks_list = [task.to_dict() for task in tasks]
     return jsonify(tasks_list)
+
+def img_logic():
+    img_name = request.args.get('img_name', type = str)
+    if img_name is None:
+        return jsonify({
+            'message':"err",
+            'status': 'bad request',
+            'description': 'check parameter'
+            }), 400
+    path = os.path.join(config.UPLOAD_FOLDER, img_name)
+    if os.path.exists(path):
+        f_type = img_name.rsplit('.', 1)[-1].lower()
+        if f_type == 'jpeg' or f_type == 'jpg':
+            mimetype = 'image/jpeg'
+        elif f_type == 'png':
+            mimetype = 'image/png'
+        return send_file(path, mimetype=mimetype)
+    else:
+        return jsonify({
+            'message': 'err',
+            'status': 'bad request',
+            'description': 'not exists file'
+            }), 400
