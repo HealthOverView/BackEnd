@@ -1,118 +1,121 @@
-from efficientnet_pytorch.utils import efficientnet
-import torch
-import torch.nn as nn
 from efficientnet_pytorch import EfficientNet
 from torchvision import transforms
-from PIL import Image
-import os
 from PIL import Image, ImageDraw
 from models.experimental import attempt_load
 from utils.general import non_max_suppression
-
-
-model_name = 'efficientnet-b5' #모델 이름
-num_classes = 4  # Replace with the actual number of classes #클래스 갯수
-model = EfficientNet.from_pretrained(model_name, num_classes=num_classes) #사용 모델 선언
-model_path = '/home/intin-dev-001/HealthOverView/BackEnd/model/president_model3.pt' #모델 베스트 PT import
-model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu'))) #CPU 모드로 전환
-model.eval() # 파이토치를 평가 모드로 변경
+import os
+import torch
 
 def predict(image_path):
+    # EfficientNet 모델 설정
+    model_name = 'efficientnet-b5'
+    num_classes = 5
+    model = EfficientNet.from_pretrained(model_name, num_classes=num_classes)
+    model_path = '/home/intin-dev-001/HealthOverView/BackEnd/model/president_model0821.pt'
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
+    model.eval()
 
-    #이미지 전처리
-    def preprocess_image(image_path):
+    # YOLOv5 모델 설정
+    yolo_model = attempt_load('/home/intin-dev-001/HealthOverView/BackEnd/model/best0821.pt')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    yolo_model.to(device)
+    yolo_model.eval()
+
+    # 클래스 네임 정의 (비가임기, 과도기, 가임기, 이물질, 에러(리트라이))
+    class_names = ['infertility_period', 'transitional_period', 'ovulatory_phase', 'foreign_substance', 'retry']
+
+    # Yolo이미지 전처리
+    def preprocess_image(img_size=640):
+        img = Image.open(image_path).convert('RGB')
+        img = transforms.Resize((img_size, img_size))(img)
+        img = transforms.ToTensor()(img)
+        img = img.unsqueeze(0)
+        return img
+
+    # effcientnet 전처리
+    def preprocess_image_efficientnet(img_size=456):
+        img = Image.open(image_path).convert("RGB")
         transform = transforms.Compose([
-            transforms.Resize((640, 640)),  #640*640포멧으로 설정
-            transforms.ToTensor(), #Tensor 포멧으로 변경
+            transforms.Resize((img_size, img_size)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
-        image = Image.open(image_path).convert("RGB") #이미지 객체를 RGB로 변경
-        image = transform(image) 
+        img = transform(img)
+        img = img.unsqueeze(0)
+        return img
 
-        # 이미지 밝기 조정
-        brightness_factor = 0.85  # You can experiment with this value
-        image = image * brightness_factor
-
-        #이미지 정규화 및 색상 조정
-        normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]) 
-        image = normalize(image)
-
-        return image
-
-    # 베스트 모델 PT에 예측
-    def predict_image_class(image, model):
+    # effcientnet 모델 예측
+    def predict_efficientnet(image):
         with torch.no_grad():
-            outputs = model(image.unsqueeze(0))
+            outputs = model(image)
         _, predicted = torch.max(outputs, 1)
-        return predicted.item()
+        return class_names[predicted.item()]
 
-    # 로드한 이미지를 사이즈 조정 등에 조정과 텐서 포멧으로 변경
-    specified_image = preprocess_image(image_path)
+    # Yolo 모델 예측
+    def predict_yolo(image):
+        input_image = image.to(device)
+        with torch.no_grad():
+            detections = yolo_model(input_image)[0]
+            detections = non_max_suppression(detections, conf_thres=0.5, iou_thres=0.4)[0]
 
-    # 이미지를 모델을 통한 예측값을 받음
-    predicted_class = predict_image_class(specified_image, model)
+        yolo_label = 4
+        if detections is not None:
+            for detection in detections:
+                class_idx = int(detection[5])
+                confidence = detection[4]
+                bounding_box = detection[:4]
 
-    # 반환 값은 번호를 가지기 때문에 해당 번호에 해당하는 클래스 네임가 매칭
-    class_names = ['ovulatory_phase', 'transitional_period', 'infertility_period', 'foreign_substance']
-    res = class_names[predicted_class]
-    print("EFF res >",res)
-    
-    #EfficientNet 결과가 이물질로 나왔을때 이물질에서 Yolo를 통해 한 번 더 검증 과정을 거친다.
-    if predicted_class == 3:
-      # Load YOLOv5 model
+                x_min, y_min, x_max, y_max = map(int, bounding_box)  # Convert to integers
 
-      model_yolo = attempt_load('/home/intin-dev-001/HealthOverView/BackEnd/model/best.pt')
+                class_idx = int(detection[5])
+                if class_idx == 0:
+                    if yolo_label == 1:
+                        continue
+                    elif yolo_label == 2:
+                        continue
+                    else:
+                        yolo_label = class_idx
 
-      device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+                elif class_idx == 1:
+                    if yolo_label == 2:
+                        continue
+                    else:
+                        yolo_label = class_idx
 
-      model_yolo.to(device)
+                elif class_idx == 2:
+                    yolo_label = class_idx
 
-      model_yolo.eval()
+                elif class_idx == 3:
+                    if yolo_label == 0:
+                        continue
+                    elif yolo_label == 1:
+                        continue
+                    elif yolo_label == 2:
+                        continue
+                    else:
+                        yolo_label = class_idx
 
-      #욜로 환경에서 데이터 처리를 위한 전처리 
-      def preprocess_image(image_path, img_size=640):
-          print("preprocess_image")
-          img = Image.open(image_path).convert('RGB') #RGB변경
-          img = transforms.Resize((img_size, img_size))(img) #이미지 사이즈 조정
-          img = transforms.ToTensor()(img) #Tensor 포멧으로 변경
-          img = img.unsqueeze(0) #\차원 생성
-          return img
-      
-      #이미지 전처리
-      input_image = preprocess_image(image_path).to(device)
-      
-      with torch.no_grad(): #Autogred 비활성화
-          detections = model_yolo(input_image)[0] #입력으로 들어온 이미지 객체 감지를 진행
-          detections = non_max_suppression(detections, conf_thres=0.5, iou_thres=0.4)[0]
+        return class_names[yolo_label]
 
-      class_Yolo_names = ['infertility_period', 'transitional_period', 'ovulatory_phase', 'foreign_substance', 'error']
+    # 받은 이미지 모델별 전처리
+    image_efficientnet = preprocess_image_efficientnet()
+    efficientnet_label = predict_efficientnet(image_efficientnet)
 
-      label = 4
-      if detections is not None:
-          original_image = Image.open(image_path)
-          draw = ImageDraw.Draw(original_image)
+    # 전처리한 이미지 모델 예측
+    image_yolo = preprocess_image()  # Use the correct preprocessing function for YOLO
+    yolo_label = predict_yolo(image_yolo)
 
-          for detection in detections:
-              class_idx = int(detection[5])
-              if class_idx == 0:
-                 if label == 1: continue
-                 elif label == 2: continue
-                 else : label = class_idx
+    # 예측 결과 출력
+    print("EfficientNet Predicted Label:", efficientnet_label)
+    print("YOLO Predicted Label:", yolo_label)
 
-              elif class_idx == 1:
-                  if label == 2: continue
-                  else: label = class_idx
-
-              elif class_idx == 2: label = class_idx
-
-              elif class_idx == 3:
-                  if label == 0: continue
-                  elif label == 1: continue
-                  elif label == 2: continue
-                  else: label = class_idx
-
-          res = class_Yolo_names[label]
-          print("Yolo res >",res)
-
-    return res
-
-
+    # 최종 예측
+    if efficientnet_label == 'retry':
+        result = efficientnet_label
+    else:
+        if yolo_label == 'foreign_substance' or yolo_label == 'retry':
+            result = efficientnet_label
+        else:
+            result = yolo_label
+    print("Final Result:", result)
+    return result

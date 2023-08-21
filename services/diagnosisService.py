@@ -37,8 +37,6 @@ def file_upload():
             file_path = os.path.join(config.UPLOAD_FOLDER, n_filename)
             image.save(file_path)
             pred = predict(file_path)
-            if pred == 'error':
-               raise Exception("사진을 다시 찍어주세요")
             return {
                 'message': 'success',
                 'status': 'OK',
@@ -62,6 +60,8 @@ def file_upload():
 def insert_logic():
     try:
         file_result = file_upload()
+        if file_result['pred'] == 'retry':
+            raise Exception('사진을 다시 찍어주세요')
         if file_result['status'] == 'OK':
             #모델 판단 부분
             #이후 결과 result에 저장
