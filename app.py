@@ -1,5 +1,5 @@
 from flask import Flask
-from models.diagnosis import db
+from model.diagnosis import db
 from routes.blueprint import blueprint
 
 

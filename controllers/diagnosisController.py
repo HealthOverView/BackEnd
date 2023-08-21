@@ -1,5 +1,5 @@
 import json
-from models.diagnosis import table, db
+from model.diagnosis import table, db
 from services.diagnosisService import insert_logic, get_logic
 
 

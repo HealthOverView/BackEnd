@@ -3,7 +3,7 @@ import time
 
 from flask import jsonify, request
 import config
-from models.diagnosis import table, db
+from model.diagnosis import table, db
 from werkzeug.utils import secure_filename
 import os
 from PIL import Image
@@ -28,14 +28,16 @@ def file_upload():
             'description': 'no selected file'
         }
     image = Image.open(file)
-    resize_image = image.resize((640, 640), Image.BICUBIC)
+    #resize_image = image.resize((640, 640), Image.BICUBIC)
     if file and allowed_file(file.filename):
         try:
             filename = secure_filename(file.filename)
             n_filename = str(time.time_ns()) + "." + filename.rsplit('.', 1)[-1].lower()
             file_path = os.path.join(config.UPLOAD_FOLDER, n_filename)
-            resize_image.save(file_path)
+            image.save(file_path)
             pred = predict(file_path)
+            if pred == 'error':
+               raise Exception("사진을 다시 찍어주세요")
             return {
                 'message': 'success',
                 'status': 'OK',
