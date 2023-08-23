@@ -11,12 +11,12 @@ def predict(image_path):
     model_name = 'efficientnet-b5'
     num_classes = 5
     model = EfficientNet.from_pretrained(model_name, num_classes=num_classes)
-    model_path = '/home/intin-dev-001/HealthOverView/BackEnd/model/president_model0821.pt'
+    model_path = '/home/intin-dev-001/HealthOverView/BackEnd/model/president_model0823.pt'
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
 
     # YOLOv5 모델 설정
-    yolo_model = attempt_load('/home/intin-dev-001/HealthOverView/BackEnd/model/best0821.pt')
+    yolo_model = attempt_load('/home/intin-dev-001/HealthOverView/BackEnd/model/best0823.pt')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     yolo_model.to(device)
     yolo_model.eval()
