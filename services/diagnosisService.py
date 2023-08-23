@@ -56,12 +56,21 @@ def file_upload():
             'description': 'Invalid file type'
         }
 
+def delete_file(file_path):
+    if os.path.exists(os.path.join(config.UPLOAD_FOLDER, file_path)):
+            os.remove(os.path.join(config.UPLOAD_FOLDER, file_path))
 
 def insert_logic():
     try:
         file_result = file_upload()
         if file_result['pred'] == 'retry':
-            raise Exception('사진을 다시 찍어주세요')
+            delete_file(file_result['description'])
+            return jsonify({
+                'message': 'success',
+                'status': 'OK',
+                'description': 'retry',
+                'file': "NULL"
+                }), 200
         if file_result['status'] == 'OK':
             #모델 판단 부분
             #이후 결과 result에 저장
@@ -78,8 +87,7 @@ def insert_logic():
         else:
             return jsonify(file_result), 400
     except Exception as e:
-        if os.path.exists(os.path.join(config.UPLOAD_FOLDER, file_result['description'])):
-            os.remove(os.path.join(config.UPLOAD_FOLDER, file_result['description']))
+        delete_file(file_result['description'])
         return jsonify({
             'message': 'err',
             'status': 'Internal Server err',
