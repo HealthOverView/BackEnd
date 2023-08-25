@@ -63,7 +63,7 @@ def delete_file(file_path):
 def insert_logic():
     try:
         file_result = file_upload()
-        if file_result['pred'] == 'retry':
+        if file_result['pred'] == 'retry' or file_result['pred'] == 'foreign_substance':
             delete_file(file_result['description'])
             return jsonify({
                 'message': 'success',
