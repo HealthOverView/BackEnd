@@ -1,3 +1,4 @@
+##라우트 설정 파일
 from flask import Blueprint
 from controllers.diagnosisController import index, insert, get, img
 

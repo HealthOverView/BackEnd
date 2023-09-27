@@ -1,3 +1,4 @@
+##실행파일
 from flask import Flask
 from model.diagnosis import db
 from routes.blueprint import blueprint
